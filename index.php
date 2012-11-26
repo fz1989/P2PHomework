@@ -10,8 +10,7 @@ if (!isset($_REQUEST["action"])) {
 		echo json_encode(doRegist());
 	} 
 	else if ($action == "login") {
-		echo "nimeia";
-		doLogin();
+		echo json_encode(doLogin());
 	}
 	else if ($action == "sharefile") {
 		doSharefile();

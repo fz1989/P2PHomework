@@ -64,11 +64,14 @@ function doShareFile()
 {
 	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
 	$filename = isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	$filesize = isset($_REQUEST["filesize"]) ? $_REQUEST["filesize"] : "";
 	echo "ShareFile";
 }
 
 function doCancleShareFile()
 {
+	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$filename = isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
 	echo "CancleShareFile";
 }
 
