@@ -12,7 +12,10 @@ function doRegist()
 	}
 	$sql = "select username from userinfo where username = '$username'";
 	$result = mysql_query($sql);
-	if (mysql_fetch_array($result)) {
+	if (!$result) {
+		return die('Error: ' . mysql_error());
+	}
+	if ($row = mysql_fetch_array($result)) {
 		return "EXISI";
 	}
 	$sql = "insert into userinfo (username, password) values ('$username', '$password')";
@@ -25,11 +28,42 @@ function doRegist()
 
 function doLogin() 
 {
-	echo "Login";
+	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password = isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$port = isset($_REQUEST["port"]) ? $_REQUEST["port"] : "";
+	$ipaddress = isset($_REQUEST["ipaddress"]) ? $_REQUEST["ipaddress"] : "";
+	$password = $password . "nimeide"; 
+	$password = md5($password, FALSE);
+	if ($username == "" || $password == "") {
+		return "NULL";
+	}
+	$sql = "select password from userinfo where username = '$username'";
+	$result = mysql_query($sql);
+	if (!$result) {
+		return die('Error: ' . mysql_error());
+	}
+	if (!($row = mysql_fetch_array($result))) {
+		return "NOTEXIST";
+	} else {
+		if ($password != $row["password"]) {
+			return "WRONG";
+		}
+		$sql = "update userinfo set online = 1, 
+									port = '$port', 
+									ipaddress = '$ipaddress' 
+				where username = '$username'";
+		if (!mysql_query($sql))
+		{
+			return die('Error: ' . mysql_error());
+		}
+		return "SUCCESS";
+	}
 }
 
 function doShareFile()
 {
+	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$filename = isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
 	echo "ShareFile";
 }
 
@@ -50,6 +84,12 @@ function doUpload()
 
 function doLogoff()
 {
-	echo "Logoff";
+	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$sql = "update userinfo set online = 0 where username = '$username'";
+	if (!mysql_query($sql))
+	{
+		return die('Error: ' . mysql_error());
+	}
+	return "SUCCESS";
 }
 ?>
