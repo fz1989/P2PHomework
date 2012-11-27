@@ -21,11 +21,12 @@ if (!isset($_REQUEST["action"])) {
 	else if ($action == "download") {
 		echo json_encode(doDownload());
 	} 
-	else if ($action == "upload") {
-		echo json_encode(doUpload());
-	}
 	else if ($action == "logoff") {
 		echo json_encode(doLogoff());
+	} 
+	else if ($action == "search") {
+		echo json_encode(doSearch());
 	}
+	else echo json_encode("Error");
 }
 ?>
