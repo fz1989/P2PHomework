@@ -13,19 +13,19 @@ if (!isset($_REQUEST["action"])) {
 		echo json_encode(doLogin());
 	}
 	else if ($action == "sharefile") {
-		doSharefile();
+		echo json_encode(doSharefile());
 	}
 	else if ($action == "canclesharefile") {
-		doCanclesharefile();
+		echo json_encode(doCanclesharefile());
 	}
 	else if ($action == "download") {
-		doDownload();
+		echo json_encode(doDownload());
 	} 
 	else if ($action == "upload") {
-		doUpload();
+		echo json_encode(doUpload());
 	}
 	else if ($action == "logoff") {
-		doLogoff();
+		echo json_encode(doLogoff());
 	}
 }
 ?>

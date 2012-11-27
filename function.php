@@ -1,12 +1,7 @@
 ﻿<?php
-$con = mysql_connect("localhost","root","fz1989");
-mysql_select_db("p2p", $con);
+require_once("getInit.php");
 function doRegist()
 {
-	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
-	$password = isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
-	$password = $password . "nimeide"; 
-	$password = md5($password, FALSE);
 	if ($username == "" || $password == "") {
 		return "NULL";
 	}
@@ -19,8 +14,7 @@ function doRegist()
 		return "EXISI";
 	}
 	$sql = "insert into userinfo (username, password) values ('$username', '$password')";
-	if (!mysql_query($sql))
-	{
+	if (!mysql_query($sql)) {
 		return die('Error: ' . mysql_error());
 	}
 	return "SUCCESS";
@@ -28,12 +22,6 @@ function doRegist()
 
 function doLogin() 
 {
-	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
-	$password = isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
-	$port = isset($_REQUEST["port"]) ? $_REQUEST["port"] : "";
-	$ipaddress = isset($_REQUEST["ipaddress"]) ? $_REQUEST["ipaddress"] : "";
-	$password = $password . "nimeide"; 
-	$password = md5($password, FALSE);
 	if ($username == "" || $password == "") {
 		return "NULL";
 	}
@@ -48,12 +36,9 @@ function doLogin()
 		if ($password != $row["password"]) {
 			return "WRONG";
 		}
-		$sql = "update userinfo set online = 1, 
-									port = '$port', 
-									ipaddress = '$ipaddress' 
+		$sql = "update userinfo set online = 1, port = '$port', ipaddress = '$ipaddress' 
 				where username = '$username'";
-		if (!mysql_query($sql))
-		{
+		if (!mysql_query($sql)) {
 			return die('Error: ' . mysql_error());
 		}
 		return "SUCCESS";
@@ -62,32 +47,41 @@ function doLogin()
 
 function doShareFile()
 {
-	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
-	$filename = isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
-	$filesize = isset($_REQUEST["filesize"]) ? $_REQUEST["filesize"] : "";
-	echo "ShareFile";
+	if (doLogin() != "SUCCESS") {
+		return "ERROR";
+	}
+	return "SUCCESS";
 }
 
 function doCancleShareFile()
 {
-	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
-	$filename = isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
-	echo "CancleShareFile";
+	if (doLogin() != "SUCCESS") {
+		return "ERROR";
+	}
+	return "SUCCESS";
 }
 
 function doDownload()
 {
-	echo "Download";
+	if (doLogin() != "SUCCESS") {
+		return "ERROR";
+	}
+	return "SUCCESS";
 }
 
 function doUpload()
 {
-	echo "Upload";
+	if (doLogin() != "SUCCESS") {
+		return "ERROR";
+	}
+	return "SUCCESS";
 }
 
 function doLogoff()
 {
-	$username = isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	if (doLogin() != "SUCCESS") {
+		return "ERROR";
+	}
 	$sql = "update userinfo set online = 0 where username = '$username'";
 	if (!mysql_query($sql))
 	{
