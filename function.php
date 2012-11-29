@@ -74,6 +74,7 @@ function doLogin()
 		return "SUCCESS";
 	}
 }
+
 function checkFileExist($filename) 
 {
 	$sql = "select count(*) from fileinfo where filename = '$filename'";

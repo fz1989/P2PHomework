@@ -2,31 +2,30 @@
 header('Content-Type: text/html; charset=utf-8');
 require_once("function.php");
 if (!isset($_REQUEST["action"])) {
-	echo json_encode("Error");
+	echo "Error";
 } else {
 	$action = $_REQUEST["action"];
-	echo $action;
 	if ($action == "regist") {
-		echo json_encode(doRegist());
+		echo doRegist();
 	} 
 	else if ($action == "login") {
-		echo json_encode(doLogin());
+		echo doLogin();
 	}
 	else if ($action == "sharefile") {
-		echo json_encode(doSharefile());
+		echo doSharefile();
 	}
 	else if ($action == "canclesharefile") {
-		echo json_encode(doCanclesharefile());
+		echo doCanclesharefile();
 	}
 	else if ($action == "download") {
-		echo json_encode(doDownload());
+		echo doDownload();
 	} 
 	else if ($action == "logoff") {
-		echo json_encode(doLogoff());
+		echo doLogoff();
 	} 
 	else if ($action == "search") {
-		echo json_encode(doSearch());
+		echo doSearch();
 	}
-	else echo json_encode("Error");
+	else echo "Error Action";
 }
 ?>
