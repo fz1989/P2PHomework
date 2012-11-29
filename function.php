@@ -1,8 +1,31 @@
 ﻿<?php
 header('Content-Type: text/html; charset=utf-8');
 require_once("getInit.php");
+function checkLogin($username, $password) 
+{
+	$password	=	$password . "nimeide"; 
+	$password	=	md5($password, FALSE);
+	if ($username == "" || $password == "") {
+		return "NULL" . $username;
+	}
+	$sql = "select password from userinfo where username = '$username'";
+	$result = mysql_query($sql);
+	if (!$result) {
+		return die('Error: ' . mysql_error());
+	}
+	if (!($row = mysql_fetch_array($result))) {
+		return "NOTEXIST";
+	} else {
+		return "SUCCESS";
+	}
+}
+
 function doRegist()
 {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$password	=	$password . "nimeide"; 
+	$password	=	md5($password, FALSE);
 	if ($username == "" || $password == "") {
 		return "NULL";
 	}
@@ -23,8 +46,14 @@ function doRegist()
 
 function doLogin() 
 {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$port		= 	isset($_REQUEST["port"]) ? $_REQUEST["port"] : "";
+	$ipaddress	=	isset($_REQUEST["ipaddress"]) ? $_REQUEST["ipaddress"] : "";
+	$password	=	$password . "nimeide"; 
+	$password	=	md5($password, FALSE);
 	if ($username == "" || $password == "") {
-		return "NULL";
+		return "NULL" . $username;
 	}
 	$sql = "select password from userinfo where username = '$username'";
 	$result = mysql_query($sql);
@@ -45,7 +74,6 @@ function doLogin()
 		return "SUCCESS";
 	}
 }
-
 function checkFileExist($filename) 
 {
 	$sql = "select count(*) from fileinfo where filename = '$filename'";
@@ -57,21 +85,48 @@ function checkFileExist($filename)
 	return $count[0];
 }
 
+function checkFileUserExist($filename, $username) 
+{
+	$sql = "select count(*) from userfile where filename = '$filename' and username = '$username'";
+	$result = mysql_query($sql);
+	if (!$result) {
+		return die('Error: ' . mysql_error());
+	}
+	$count = mysql_fetch_array($result);
+	return $count[0];
+}
+
 function doShareFile()
 {
-	if (doLogin() != "SUCCESS") {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	$filesize	=	isset($_REQUEST["filesize"]) ? $_REQUEST["filesize"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
 	if (checkFileExist($filename) != 0) {
-		return "EXIST";
+		if (checkFileUserExist($filename, $username) == 0) {
+			$sql = "update fileinfo set filecount = filecount + 1 where filename = '$filename'";
+			$result = mysql_query($sql);
+			$sql = "insert into userfile (username, filename) values ('$username','$filename')";
+			if (!mysql_query($sql)) {
+				return die('Error: doShareFile' . mysql_error());
+			}
+			if (!$result) {
+				return die('Error: doShareFile' . mysql_error());
+			}
+			return "SUCCESS";
+		}
+		else	return "EXIST";
 	} else {
 		$sql = "insert into fileinfo (filename, filesize, filecount) values ('$filename', '$filesize', 1)";
-		if (!mysql_query(sql)) {
-			return die('Error: ' . mysql_error());
+		if (!mysql_query($sql)) {
+			return die('Error: doShareFile' . mysql_error());
 		}
 		$sql = "insert into userfile (username, filename) values ('$username','$filename')";
-		if (!mysql_query(sql)) {
-			return die('Error: ' . mysql_error());
+		if (!mysql_query($sql)) {
+			return die('Error: doShareFile' . mysql_error());
 		}
 	}
 	return "SUCCESS";
@@ -79,24 +134,28 @@ function doShareFile()
 
 function doCancleShareFile()
 {
-	if (doLogin() != "SUCCESS") {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
 	if (checkFileExist($filename) == 0) {
-		return "NOTEXIST";
+		return "FILENOTEXIST";
 	} else {
-		if ($count[0] == 1) {
+		if (checkFileExist($filename) <= 1) {
 			$sql = "delete from fileinfo where filename = '$filename'";
-			if (!mysql_query(sql)) {
+			if (!mysql_query($sql)) {
 				return die('Error: ' . mysql_error());
 			}
 		} else {
-			$sql = "update fileinfo set filecount = fliecount - 1 where filename = '$filename'";
-			if (!mysql_query(sql)) {
+			if (checkFileUserExist($filename, $username) == 0) return "NOTEXIST";
+			$sql = "update fileinfo set filecount = filecount - 1 where filename = '$filename'";
+			if (!mysql_query($sql)) {
 				return die('Error: ' . mysql_error());
 			}
 			$sql = "delete from userfile where filename = '$filename' and username = '$username'";
-			if (!mysql_query(sql)) {
+			if (!mysql_query($sql)) {
 				return die('Error: ' . mysql_error());
 			}
 		}
@@ -106,30 +165,35 @@ function doCancleShareFile()
 
 function doDownload()
 {
-	if (doLogin() != "SUCCESS") {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
 	if (checkFileExist($filename) == 0) {
 		return "NOTEXIST";
 	} else {
 		$sql = "select userinfo.ipaddress, userinfo.port, fileinfo.filename 
-				from fileinfo join userfile on userinfo.username = userfile.username 
-				where fileinfo.filename = '$filename'";
+				from userinfo join userfile on userinfo.username = userfile.username 
+				where userfile.filename = '$filename' and userinfo.username <> '$username'";
 		$result = mysql_query($sql);
 		if (!$result) {
 			return die('Error: ' . mysql_error());
 		}
-		array $ret;
+		$ret = array();
 		while ($row = mysql_fetch_array($result)) {
 			$ret[] = $row;
 		}
-		return $ret;
+		return json_encode($ret);
 	}
 }
 
 function doLogoff()
 {
-	if (doLogin() != "SUCCESS") {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
 	$sql = "update userinfo set online = 0 where username = '$username'";
@@ -141,24 +205,25 @@ function doLogoff()
 
 function doSearch() 
 {
-	if (doLogin() != "SUCCESS") {
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
 	if (checkFileExist($filename) == 0) {
 		return "NOTEXIST";
 	} else {
-		$sql = "select userinfo.username 
-				from fileinfo join userfile on userinfo.username = userfile.username 
-				where fileinfo.filename = '$filename'";
+		$sql = "select username from userfile where filename = '$filename'";
 		$result = mysql_query($sql);
 		if (!$result) {
 			return die('Error: ' . mysql_error());
 		}
-		array $ret;
+		$ret = array();
 		while ($row = mysql_fetch_array($result)) {
 			$ret[] = $row;
 		}
-		return $ret;
+		return json_encode($ret);
 	}
 }
 ?>
