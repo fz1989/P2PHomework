@@ -12,10 +12,9 @@ namespace Client
 {
     public partial class LoginForm : Form
     {
-        UesrInfo userinfo;
+        public UesrInfo userinfo;
         public LoginForm()
         {
-            PasswordInput.UseSystemPasswordChar = true;
             userinfo = new UesrInfo();
             InitializeComponent();
         }
@@ -32,7 +31,7 @@ namespace Client
                 userinfo.UserName = userNameInput.Text;
                 userinfo.Password = PasswordInput.Text;
                 IPHostEntry ipe = Dns.GetHostEntry(Dns.GetHostName());
-                string ipaddress = ipe.AddressList[5].ToString();//here we need modify
+                string ipaddress = "219.245.98.140";//here we need modify
                 string port = PortInput.Text;
                 MessageBox.Show(ipaddress);
                 PostData Require = new PostData();
@@ -64,6 +63,11 @@ namespace Client
         private void ExitButton_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
+        }
+
+        private void LoginForm_Load(object sender, EventArgs e)
+        {
+            PasswordInput.UseSystemPasswordChar = true;
         }
 
     }

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Client
 {
-    class UesrInfo{
+    public class UesrInfo{
         string username, password;
         public string UserName
         {
@@ -38,9 +38,10 @@ namespace Client
                 
                 if (newLoginFormResult == DialogResult.OK)
                 {
+                    HomeForm newHomeFrom = new HomeForm();
+                    newHomeFrom.userinfo = newLoginForm.userinfo;
                     newLoginForm.Close();
                     newLoginForm.Dispose();
-                    HomeForm newHomeFrom = new HomeForm();
                     Application.Run(newHomeFrom);
                     break;
                 }
