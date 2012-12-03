@@ -6,7 +6,7 @@ function checkLogin($username, $password)
 	$password	=	$password . "nimeide"; 
 	$password	=	md5($password, FALSE);
 	if ($username == "" || $password == "") {
-		return "NULL" . $username;
+		return "NULL";
 	}
 	$sql = "select password from userinfo where username = '$username'";
 	$result = mysql_query($sql);
@@ -35,7 +35,7 @@ function doRegist()
 		return die('Error: ' . mysql_error());
 	}
 	if ($row = mysql_fetch_array($result)) {
-		return "EXISI";
+		return "EXIST";
 	}
 	$sql = "insert into userinfo (username, password) values ('$username', '$password')";
 	if (!mysql_query($sql)) {
@@ -52,8 +52,9 @@ function doLogin()
 	$ipaddress	=	isset($_REQUEST["ipaddress"]) ? $_REQUEST["ipaddress"] : "";
 	$password	=	$password . "nimeide"; 
 	$password	=	md5($password, FALSE);
+	$ret = "SUCCESS";
 	if ($username == "" || $password == "") {
-		return "NULL" . $username;
+		return "NULL";
 	}
 	$sql = "select password from userinfo where username = '$username'";
 	$result = mysql_query($sql);
@@ -71,7 +72,7 @@ function doLogin()
 		if (!mysql_query($sql)) {
 			return die('Error: ' . mysql_error());
 		}
-		return "SUCCESS";
+		return $ret;
 	}
 }
 
@@ -163,7 +164,25 @@ function doCancleShareFile()
 	}
 	return "SUCCESS";
 }
-
+function doUpload() 
+{
+	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
+		return "ERROR";
+	} else {
+		$ret = "";
+		$sql = "select filename from userfile where username = '$username'";
+		$result = mysql_query($sql);
+		if (!$result) {
+			return die('Error: ' . mysql_error());
+		}
+		while ($row = mysql_fetch_array($result)) {
+			$ret = $ret . "" . $row["filename"] . "#";
+		}
+		return $ret;
+	}
+}
 function doDownload()
 {
 	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
@@ -182,11 +201,13 @@ function doDownload()
 		if (!$result) {
 			return die('Error: ' . mysql_error());
 		}
-		$ret = array();
+		$ret = "";
 		while ($row = mysql_fetch_array($result)) {
-			$ret[] = $row;
+			$ret = $ret . "&" . $row["userinfo.ipaddress"];
+			$ret = $ret . "&" . $row["userinfo.port"];
+			$ret = $ret . "&" . $row["fileinfo.filename"] . "#";
 		}
-		return json_encode($ret);
+		return $ret;
 	}
 }
 
@@ -212,19 +233,24 @@ function doSearch()
 	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
-	if (checkFileExist($filename) == 0) {
+	if ($filename != "" && checkFileExist($filename) == 0) {
 		return "NOTEXIST";
 	} else {
-		$sql = "select username from userfile where filename = '$filename'";
+		if ($filename == "") {
+			$sql = "select username from userfile where username <> '$username'";
+		}
+		else {
+			$sql = "select username from userfile where filename = '$filename' and username <> '$username'";
+		}
 		$result = mysql_query($sql);
 		if (!$result) {
 			return die('Error: ' . mysql_error());
 		}
-		$ret = array();
+		$ret = "";
 		while ($row = mysql_fetch_array($result)) {
-			$ret[] = $row;
+			$ret= $ret . "" . $row["username"] . "#";
 		}
-		return json_encode($ret);
+		return $ret;
 	}
 }
 ?>
