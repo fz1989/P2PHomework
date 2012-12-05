@@ -5,20 +5,6 @@ using System.Windows.Forms;
 
 namespace Client
 {
-    public class UesrInfo{
-        string username, password;
-        public string UserName
-        {
-            get { return username; }
-            set { username = value; }
-        }
-        public string Password
-        {
-            get { return password; }
-            set { password = value; } 
-        }
-
-    }
     static class Program
     {
         /// <summary>

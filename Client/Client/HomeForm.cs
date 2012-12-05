@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace Client
 {
@@ -19,10 +20,17 @@ namespace Client
             InitializeComponent();
         }
 
+        private void ListenThread()
+        {
+            
+        }
+
         private void HomeForm_Load(object sender, EventArgs e)
         {
             getUpload();
             openFileDialog = new OpenFileDialog();
+            Thread newListenThread = new Thread(ListenThread);
+            newListenThread.Start();
         }
 
         private void getUpload()
@@ -34,17 +42,17 @@ namespace Client
             string response = Require.postPackge();
             //ResourceGridView.Dispose();
             string[] tmp = response.Split('#');
-            int len = tmp.Length;
+            int len = tmp.Length - 1;
             string[,] info = new string[len, 1];
-            info[0, 0] = "文件名";
             UploadGridView.ColumnCount = 1;
             UploadGridView.RowCount = len;
-            for (int i = 0; i + 1 < UploadGridView.RowCount; i++)
+            MessageBox.Show(len.ToString());
+            for (int i = 0; i < UploadGridView.RowCount; i++)
             {
                 string[] buff = tmp[i].Split('&');
                 for (int j = 0; j < UploadGridView.ColumnCount; j++)
                 {
-                    info[i + 1, j] = buff[j];
+                    info[i, j] = buff[j];
                 }
             }
             for (int i = 0; i < UploadGridView.RowCount; i++)
@@ -67,20 +75,16 @@ namespace Client
             string response = Require.postPackge();
             //ResourceGridView.Dispose();
             string[] tmp = response.Split('#');
-            int len = tmp.Length;
+            int len = tmp.Length - 1;
             string[,] info = new string[len, 4];
-            info[0, 0] = "文件名";
-            info[0, 1] = "文件大小";
-            info[0, 2] = "用户名";
-            info[0, 3] = "在线状态";
             ResourceGridView.ColumnCount = 4;
             ResourceGridView.RowCount = len;
-            for (int i = 0; i + 1 < ResourceGridView.RowCount; i++)
+            for (int i = 0; i < ResourceGridView.RowCount; i++)
             {
                 string[] buff = tmp[i].Split('&');
                 for (int j = 0; j < ResourceGridView.ColumnCount; j++)
                 {
-                    info[i + 1, j] = buff[j];
+                    info[i, j] = buff[j];
                 }
             }
             for (int i = 0; i < ResourceGridView.RowCount; i++)
@@ -123,6 +127,7 @@ namespace Client
                 string filesize = fileinfo.Length / 1024 + "KB";
                 string filename = openFileDialog.SafeFileName;
                 PostData Require = new PostData();
+                filepath.Replace("\\", "\\\\\\\\");
                 Require.InData = "action=sharefile" +
                                 "&&username=" + userinfo.UserName +
                                 "&&password=" + userinfo.Password +
@@ -142,6 +147,41 @@ namespace Client
                     return;
                 }
             }
+        }
+
+        private void GetDownLoadThread()
+        {
+            if (ResourceGridView.SelectedRows.Count != 0)
+            {
+                string requierFilename = ResourceGridView.CurrentRow.Cells[0].Value.ToString();
+                string requireUser = ResourceGridView.CurrentRow.Cells[1].Value.ToString();
+                PostData Require = new PostData();
+                Require.InData = "action=download" +
+                                "&&username=" + userinfo.UserName +
+                                "&&password=" + userinfo.Password +
+                                "&&requireuser=" + requireUser +
+                                "&&filename=" + requierFilename;
+                string response = Require.postPackge();
+                string[] tmp = response.Split('&');
+                GetFile getFile = new GetFile();
+                getFile.IpAddress = tmp[0];
+                getFile.Port = tmp[1];
+                getFile.FileName = tmp[2];
+                getFile.FilePath = tmp[3];
+                if (getFile.DownloadFile())
+                {
+                    MessageBox.Show(requierFilename + "已经下载完成！");
+                }
+                else
+                {
+                    MessageBox.Show(requierFilename + "下载失败！");
+                }
+            }
+        }
+        private void DownloadButton_Click(object sender, EventArgs e)
+        {
+            Thread newDownLoadThread = new Thread(GetDownLoadThread);
+            newDownLoadThread.Start();
         }
 
     }

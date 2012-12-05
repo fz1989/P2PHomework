@@ -33,7 +33,8 @@ namespace Client
                 IPHostEntry ipe = Dns.GetHostEntry(Dns.GetHostName());
                 string ipaddress = "219.245.98.140";//here we need modify
                 string port = PortInput.Text;
-                MessageBox.Show(ipaddress);
+                userinfo.Port = port;
+                userinfo.IpAddress = ipaddress;
                 PostData Require = new PostData();
                 Require.InData = "action=login" +
                                 "&&username=" + userinfo.UserName +

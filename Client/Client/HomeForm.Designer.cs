@@ -38,6 +38,11 @@
             this.SearchInput = new System.Windows.Forms.TextBox();
             this.ResourceGridView = new System.Windows.Forms.DataGridView();
             this.DownloadButton = new System.Windows.Forms.Button();
+            this.uploadFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.resourceFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.resourceFileSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uploadUsername = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.onLine = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.UploadGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ResourceGridView)).BeginInit();
             this.SuspendLayout();
@@ -57,6 +62,8 @@
             this.UploadGridView.AllowUserToDeleteRows = false;
             this.UploadGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.UploadGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.UploadGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.uploadFileName});
             this.UploadGridView.Location = new System.Drawing.Point(322, 45);
             this.UploadGridView.Name = "UploadGridView";
             this.UploadGridView.ReadOnly = true;
@@ -117,10 +124,19 @@
             // 
             // ResourceGridView
             // 
+            this.ResourceGridView.AllowUserToAddRows = false;
+            this.ResourceGridView.AllowUserToDeleteRows = false;
             this.ResourceGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.ResourceGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.resourceFileName,
+            this.resourceFileSize,
+            this.uploadUsername,
+            this.onLine});
             this.ResourceGridView.Location = new System.Drawing.Point(12, 45);
             this.ResourceGridView.Name = "ResourceGridView";
+            this.ResourceGridView.ReadOnly = true;
             this.ResourceGridView.RowTemplate.Height = 23;
+            this.ResourceGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.ResourceGridView.Size = new System.Drawing.Size(290, 150);
             this.ResourceGridView.TabIndex = 8;
             // 
@@ -132,6 +148,37 @@
             this.DownloadButton.TabIndex = 9;
             this.DownloadButton.Text = "下载文件";
             this.DownloadButton.UseVisualStyleBackColor = true;
+            this.DownloadButton.Click += new System.EventHandler(this.DownloadButton_Click);
+            // 
+            // uploadFileName
+            // 
+            this.uploadFileName.HeaderText = "文件名";
+            this.uploadFileName.Name = "uploadFileName";
+            this.uploadFileName.ReadOnly = true;
+            // 
+            // resourceFileName
+            // 
+            this.resourceFileName.HeaderText = "文件名";
+            this.resourceFileName.Name = "resourceFileName";
+            this.resourceFileName.ReadOnly = true;
+            // 
+            // resourceFileSize
+            // 
+            this.resourceFileSize.HeaderText = "文件大小";
+            this.resourceFileSize.Name = "resourceFileSize";
+            this.resourceFileSize.ReadOnly = true;
+            // 
+            // uploadUsername
+            // 
+            this.uploadUsername.HeaderText = "用户名";
+            this.uploadUsername.Name = "uploadUsername";
+            this.uploadUsername.ReadOnly = true;
+            // 
+            // onLine
+            // 
+            this.onLine.HeaderText = "在线状态";
+            this.onLine.Name = "onLine";
+            this.onLine.ReadOnly = true;
             // 
             // HomeForm
             // 
@@ -169,5 +216,10 @@
         private System.Windows.Forms.TextBox SearchInput;
         private System.Windows.Forms.DataGridView ResourceGridView;
         private System.Windows.Forms.Button DownloadButton;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uploadFileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn resourceFileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn resourceFileSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn uploadUsername;
+        private System.Windows.Forms.DataGridViewTextBoxColumn onLine;
     }
 }

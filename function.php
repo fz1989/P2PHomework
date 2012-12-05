@@ -186,9 +186,10 @@ function doUpload()
 }
 function doDownload()
 {
-	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
-	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
-	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	$requireuser	=	isset($_REQUEST["requireuser"]) ? $_REQUEST["requireuser"] : ""; 
+	$username		=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password		=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$filename		=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
 	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
@@ -198,7 +199,7 @@ function doDownload()
 		$sql = "select userinfo.ipaddress, userinfo.port, userfile.filename, userfile.filepath
 				from userinfo join userfile on userinfo.username = userfile.username
 				where userfile.filename = '$filename'
-				and userinfo.username <> '$username'";
+				and userinfo.username = '$requireuser'";
 		$result = mysql_query($sql);
 		if (!$result) {
 			return die('Error: ' . mysql_error());
@@ -208,7 +209,7 @@ function doDownload()
 			$ret = $ret . "" . $row["ipaddress"] . "&";
 			$ret = $ret . "" . $row["port"]. "&";
 			$ret = $ret . "" . $row["filename"]. "&";
-			$ret = $ret . "" .	$row["filepath"] . "#";
+			$ret = $ret . "" .	$row["filepath"];
 		}
 		return $ret;
 	}
