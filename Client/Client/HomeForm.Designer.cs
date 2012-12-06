@@ -30,6 +30,7 @@
         {
             this.UploadLabel = new System.Windows.Forms.Label();
             this.UploadGridView = new System.Windows.Forms.DataGridView();
+            this.uploadFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ResourceLabel = new System.Windows.Forms.Label();
             this.CancelShareButton = new System.Windows.Forms.Button();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -37,12 +38,11 @@
             this.SearchButton = new System.Windows.Forms.Button();
             this.SearchInput = new System.Windows.Forms.TextBox();
             this.ResourceGridView = new System.Windows.Forms.DataGridView();
-            this.DownloadButton = new System.Windows.Forms.Button();
-            this.uploadFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.resourceFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.resourceFileSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.uploadUsername = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.onLine = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DownloadButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.UploadGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ResourceGridView)).BeginInit();
             this.SuspendLayout();
@@ -71,6 +71,12 @@
             this.UploadGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.UploadGridView.Size = new System.Drawing.Size(185, 150);
             this.UploadGridView.TabIndex = 2;
+            // 
+            // uploadFileName
+            // 
+            this.uploadFileName.HeaderText = "文件名";
+            this.uploadFileName.Name = "uploadFileName";
+            this.uploadFileName.ReadOnly = true;
             // 
             // ResourceLabel
             // 
@@ -140,22 +146,6 @@
             this.ResourceGridView.Size = new System.Drawing.Size(290, 150);
             this.ResourceGridView.TabIndex = 8;
             // 
-            // DownloadButton
-            // 
-            this.DownloadButton.Location = new System.Drawing.Point(12, 209);
-            this.DownloadButton.Name = "DownloadButton";
-            this.DownloadButton.Size = new System.Drawing.Size(75, 23);
-            this.DownloadButton.TabIndex = 9;
-            this.DownloadButton.Text = "下载文件";
-            this.DownloadButton.UseVisualStyleBackColor = true;
-            this.DownloadButton.Click += new System.EventHandler(this.DownloadButton_Click);
-            // 
-            // uploadFileName
-            // 
-            this.uploadFileName.HeaderText = "文件名";
-            this.uploadFileName.Name = "uploadFileName";
-            this.uploadFileName.ReadOnly = true;
-            // 
             // resourceFileName
             // 
             this.resourceFileName.HeaderText = "文件名";
@@ -180,6 +170,16 @@
             this.onLine.Name = "onLine";
             this.onLine.ReadOnly = true;
             // 
+            // DownloadButton
+            // 
+            this.DownloadButton.Location = new System.Drawing.Point(12, 209);
+            this.DownloadButton.Name = "DownloadButton";
+            this.DownloadButton.Size = new System.Drawing.Size(75, 23);
+            this.DownloadButton.TabIndex = 9;
+            this.DownloadButton.Text = "下载文件";
+            this.DownloadButton.UseVisualStyleBackColor = true;
+            this.DownloadButton.Click += new System.EventHandler(this.DownloadButton_Click);
+            // 
             // HomeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -196,6 +196,7 @@
             this.Controls.Add(this.UploadLabel);
             this.Name = "HomeForm";
             this.Text = "HomeForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomeForm_FormClosing);
             this.Load += new System.EventHandler(this.HomeForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.UploadGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ResourceGridView)).EndInit();

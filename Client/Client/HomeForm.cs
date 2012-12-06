@@ -14,6 +14,7 @@ namespace Client
     public partial class HomeForm : Form
     {
         public UesrInfo userinfo;
+        Thread newListenThread;
         public HomeForm()
         {
             userinfo = new UesrInfo();
@@ -22,14 +23,16 @@ namespace Client
 
         private void ListenThread()
         {
-            
+            Listen newListen = new Listen();
+            newListen.setUserInfo(userinfo);
+            newListen.BeginListen();
         }
 
         private void HomeForm_Load(object sender, EventArgs e)
         {
             getUpload();
             openFileDialog = new OpenFileDialog();
-            Thread newListenThread = new Thread(ListenThread);
+            newListenThread = new Thread(ListenThread);
             newListenThread.Start();
         }
 
@@ -46,7 +49,6 @@ namespace Client
             string[,] info = new string[len, 1];
             UploadGridView.ColumnCount = 1;
             UploadGridView.RowCount = len;
-            MessageBox.Show(len.ToString());
             for (int i = 0; i < UploadGridView.RowCount; i++)
             {
                 string[] buff = tmp[i].Split('&');
@@ -123,11 +125,12 @@ namespace Client
             if (openFileResult == DialogResult.OK)
             {
                 string filepath = openFileDialog.FileName;
+                byte[] bytes = Encoding.Default.GetBytes(filepath);
+                filepath = Convert.ToBase64String(bytes);
                 FileInfo fileinfo = new FileInfo(openFileDialog.FileName);
                 string filesize = fileinfo.Length / 1024 + "KB";
                 string filename = openFileDialog.SafeFileName;
                 PostData Require = new PostData();
-                filepath.Replace("\\", "\\\\\\\\");
                 Require.InData = "action=sharefile" +
                                 "&&username=" + userinfo.UserName +
                                 "&&password=" + userinfo.Password +
@@ -154,7 +157,7 @@ namespace Client
             if (ResourceGridView.SelectedRows.Count != 0)
             {
                 string requierFilename = ResourceGridView.CurrentRow.Cells[0].Value.ToString();
-                string requireUser = ResourceGridView.CurrentRow.Cells[1].Value.ToString();
+                string requireUser = ResourceGridView.CurrentRow.Cells[2].Value.ToString();
                 PostData Require = new PostData();
                 Require.InData = "action=download" +
                                 "&&username=" + userinfo.UserName +
@@ -168,6 +171,9 @@ namespace Client
                 getFile.Port = tmp[1];
                 getFile.FileName = tmp[2];
                 getFile.FilePath = tmp[3];
+                byte[] outputb = Convert.FromBase64String(getFile.FilePath);
+                getFile.FilePath = Encoding.Default.GetString(outputb);
+                MessageBox.Show(getFile.FilePath);
                 if (getFile.DownloadFile())
                 {
                     MessageBox.Show(requierFilename + "已经下载完成！");
@@ -182,6 +188,21 @@ namespace Client
         {
             Thread newDownLoadThread = new Thread(GetDownLoadThread);
             newDownLoadThread.Start();
+        }
+
+        private void HomeForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            PostData Require = new PostData();
+            Require.InData = "action=logoff" +
+                            "&&username=" + userinfo.UserName +
+                            "&&password=" + userinfo.Password;
+            string response = Require.postPackge();
+            if (response.Equals("SUCCESS"))
+            {
+                MessageBox.Show("下线成功！");
+                return;
+            }
+            newListenThread.Abort();
         }
 
     }

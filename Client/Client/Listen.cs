@@ -11,7 +11,7 @@ namespace Client
     class Listen
     {
         UesrInfo userInfo;
-        Listen()
+        public Listen()
         {
             userInfo = new UesrInfo();
         }
@@ -23,8 +23,8 @@ namespace Client
         {
             Socket connectSocket = input as Socket;
             Byte[] byteMessage = new Byte[256];
-            connectSocket.Receive(byteMessage);
-            string filePath = Encoding.GetEncoding("UTF-8").GetString (byteMessage);
+            int num = connectSocket.Receive(byteMessage);
+            string filePath = Encoding.GetEncoding("UTF-8").GetString(byteMessage, 0, num);
             FileStream reader = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
             Byte[] Buffer = new Byte[10240];
             int read, sent = 0;
@@ -46,8 +46,8 @@ namespace Client
                     Thread.Sleep(200);
 
                 }
-                reader.Close();
             }
+            reader.Close();
         }
         public void BeginListen()
         {

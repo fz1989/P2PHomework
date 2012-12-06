@@ -39,8 +39,8 @@ namespace Client
             Byte[] sendHeader = Encoding.GetEncoding("UTF-8").GetBytes(filepath);
             connectServer.Send(sendHeader);
             Byte[] buffer = new Byte[10240];
-            connectServer.Receive(buffer);
-            long needReceive = long.Parse(Encoding.GetEncoding("UTF-8").GetString(buffer));
+            int num = connectServer.Receive(buffer);
+            long needReceive = long.Parse(Encoding.GetEncoding("UTF-8").GetString(buffer, 0, num));
             FileInfo file = new FileInfo(filename);
             FileStream writer = file.Open(file.Exists ? FileMode.Append : FileMode.CreateNew, FileAccess.Write, FileShare.None);
             long receive = writer.Length;
