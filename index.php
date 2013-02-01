@@ -11,6 +11,9 @@ if (!isset($_REQUEST["action"])) {
 	else if ($action == "login") {
 		echo doLogin();
 	}
+	else if ($action == "upload") {
+		echo doUpload();
+	}
 	else if ($action == "sharefile") {
 		echo doSharefile();
 	}
