@@ -6,7 +6,7 @@ function checkLogin($username, $password)
 	$password	=	$password . "nimeide"; 
 	$password	=	md5($password, FALSE);
 	if ($username == "" || $password == "") {
-		return "NULL" . $username;
+		return "NULL";
 	}
 	$sql = "select password from userinfo where username = '$username'";
 	$result = mysql_query($sql);
@@ -35,7 +35,7 @@ function doRegist()
 		return die('Error: ' . mysql_error());
 	}
 	if ($row = mysql_fetch_array($result)) {
-		return "EXISI";
+		return "EXIST";
 	}
 	$sql = "insert into userinfo (username, password) values ('$username', '$password')";
 	if (!mysql_query($sql)) {
@@ -52,8 +52,9 @@ function doLogin()
 	$ipaddress	=	isset($_REQUEST["ipaddress"]) ? $_REQUEST["ipaddress"] : "";
 	$password	=	$password . "nimeide"; 
 	$password	=	md5($password, FALSE);
+	$ret = "SUCCESS";
 	if ($username == "" || $password == "") {
-		return "NULL" . $username;
+		return "NULL";
 	}
 	$sql = "select password from userinfo where username = '$username'";
 	$result = mysql_query($sql);
@@ -71,7 +72,7 @@ function doLogin()
 		if (!mysql_query($sql)) {
 			return die('Error: ' . mysql_error());
 		}
-		return "SUCCESS";
+		return $ret;
 	}
 }
 
@@ -103,6 +104,7 @@ function doShareFile()
 	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
 	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
 	$filesize	=	isset($_REQUEST["filesize"]) ? $_REQUEST["filesize"] : "";
+	$filepath	=	isset($_REQUEST["filepath"]) ? $_REQUEST["filepath"] : "";
 	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
@@ -110,7 +112,7 @@ function doShareFile()
 		if (checkFileUserExist($filename, $username) == 0) {
 			$sql = "update fileinfo set filecount = filecount + 1 where filename = '$filename'";
 			$result = mysql_query($sql);
-			$sql = "insert into userfile (username, filename) values ('$username','$filename')";
+			$sql = "insert into userfile (username, filename, filepath) values ('$username', '$filename', '$filepath')";
 			if (!mysql_query($sql)) {
 				return die('Error: doShareFile' . mysql_error());
 			}
@@ -125,7 +127,7 @@ function doShareFile()
 		if (!mysql_query($sql)) {
 			return die('Error: doShareFile' . mysql_error());
 		}
-		$sql = "insert into userfile (username, filename) values ('$username','$filename')";
+		$sql = "insert into userfile (username, filename, filepath) values ('$username', '$filename', '$filepath')";
 		if (!mysql_query($sql)) {
 			return die('Error: doShareFile' . mysql_error());
 		}
@@ -163,30 +165,53 @@ function doCancleShareFile()
 	}
 	return "SUCCESS";
 }
-
-function doDownload()
+function doUpload() 
 {
 	$username	=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
 	$password	=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
-	$filename	=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
+	if (checkLogin($username, $password) != "SUCCESS") {
+		return "ERROR";
+	} else {
+		$ret = "";
+		$sql = "select filename from userfile where username = '$username'";
+		$result = mysql_query($sql);
+		if (!$result) {
+			return die('Error: ' . mysql_error());
+		}
+		while ($row = mysql_fetch_array($result)) {
+			$ret = $ret . "" . $row["filename"] . "#";
+		}
+		return $ret;
+	}
+}
+function doDownload()
+{
+	$requireuser	=	isset($_REQUEST["requireuser"]) ? $_REQUEST["requireuser"] : ""; 
+	$username		=	isset($_REQUEST["username"]) ? $_REQUEST["username"] : "";
+	$password		=	isset($_REQUEST["password"]) ? $_REQUEST["password"] : "";
+	$filename		=	isset($_REQUEST["filename"]) ? $_REQUEST["filename"] : "";
 	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
 	if (checkFileExist($filename) == 0) {
 		return "NOTEXIST";
 	} else {
-		$sql = "select userinfo.ipaddress, userinfo.port, fileinfo.filename 
-				from userinfo join userfile on userinfo.username = userfile.username 
-				where userfile.filename = '$filename' and userinfo.username <> '$username'";
+		$sql = "select userinfo.ipaddress, userinfo.port, userfile.filename, userfile.filepath
+				from userinfo join userfile on userinfo.username = userfile.username
+				where userfile.filename = '$filename'
+				and userinfo.username = '$requireuser'";
 		$result = mysql_query($sql);
 		if (!$result) {
 			return die('Error: ' . mysql_error());
 		}
-		$ret = array();
+		$ret = "";
 		while ($row = mysql_fetch_array($result)) {
-			$ret[] = $row;
+			$ret = $ret . "" . $row["ipaddress"] . "&";
+			$ret = $ret . "" . $row["port"]. "&";
+			$ret = $ret . "" . $row["filename"]. "&";
+			$ret = $ret . "" .	$row["filepath"];
 		}
-		return json_encode($ret);
+		return $ret;
 	}
 }
 
@@ -212,19 +237,26 @@ function doSearch()
 	if (checkLogin($username, $password) != "SUCCESS") {
 		return "ERROR";
 	}
-	if (checkFileExist($filename) == 0) {
+	if ($filename != "" && checkFileExist($filename) == 0) {
 		return "NOTEXIST";
 	} else {
-		$sql = "select username from userfile where filename = '$filename'";
+		$sql = "select userfile.filename, fileinfo.filesize, userinfo.username, userinfo.online
+				from (userinfo join userfile on userinfo.username = userfile.username) 
+				join fileinfo on fileinfo.filename = userfile.filename 
+				where userfile.filename = '$filename' 
+				and userinfo.username <> '$username'";
 		$result = mysql_query($sql);
 		if (!$result) {
 			return die('Error: ' . mysql_error());
 		}
-		$ret = array();
+		$ret = "";
 		while ($row = mysql_fetch_array($result)) {
-			$ret[] = $row;
+			$ret= $ret . "" . $row[0] . "&";
+			$ret= $ret . "" . $row[1] . "&";
+			$ret= $ret . "" . $row[2] . "&";
+			$ret= $ret . "" . $row[3] . "#";
 		}
-		return json_encode($ret);
+		return $ret;
 	}
 }
 ?>
